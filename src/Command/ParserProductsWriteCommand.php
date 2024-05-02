@@ -1,0 +1,161 @@
+<?php
+
+namespace App\Command;
+
+use App\Entity\Category;
+use App\Entity\Product;
+use App\Entity\ProductAttribute;
+use App\Repository\CategoryRepository;
+use App\Repository\ProductAttributeRepository;
+use App\Repository\ProductRepository;
+use App\Doctrine\Saver;
+use App\Utils\WriterXlsx;
+use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
+
+#[AsCommand(
+    name: 'parser:products-write',
+    description: 'Запись товаров в файл',
+)]
+class ParserProductsWriteCommand extends Command
+{
+    private const BATCH_SIZE = 20;
+
+    private const PAGE_NAME_PRODUCTS = 'Товары';
+    private const PAGE_NAME_RENAME = 'Переименовать товароы';
+    private const PAGE_NAME_LINKED = 'Связанные товары';
+    private const KEY_CATEGORY_HASH = '_category_hash';
+    private const KEY_CATEGORY_NAME = '_category_name';
+    private const KEY_PRODUCT_HASH = 'hash';
+    private const KEY_PRODUCT_NAME = 'Наименование';
+    private const KEY_PRODUCT_CATEGORIES = 'Категории';
+    private const KEY_PRODUCT_BREADCRUMBS = '_breadcrumbs';
+    private const KEY_PRODUCT_URL = 'url';
+    private const KEYS_RENAME = ['hash', 'Название товара'];
+    private const KEYS_PRODUCT_LINKED = ['Аналоги по мощности', 'Дополнительное оборудование', 'Связанные товары', 'Запчасти', 'Варианты исполнения', 'Расходные материалы для ТО'];
+
+
+    public function __construct(
+        private ProductAttributeRepository $attributeRepository,
+        private ProductRepository          $productRepository,
+        private CategoryRepository         $categoryRepository,
+        private Saver                      $saver,
+        private WriterXlsx                 $writerXlsx,
+    )
+    {
+        parent::__construct();
+    }
+
+    protected function configure(): void
+    {
+        //$this->addArgument('parser', InputArgument::REQUIRED, 'Название парсера');
+    }
+
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        date_default_timezone_set('Europe/Moscow');
+
+        $timeStart = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Moscow'));
+
+        $io = new SymfonyStyle($input, $output);
+        $io->info('START ' . $timeStart->format('d-m-Y, H:i:s'));
+
+        //$attributes = array_merge([self::KEY_PRODUCT_CATEGORIES], $this->attributeRepository->getAll());
+        $attributes = $this->attributeRepository->getAll();
+
+        $exclude = [self::KEY_PRODUCT_URL, self::KEY_PRODUCT_BREADCRUMBS, self::KEY_CATEGORY_HASH, self::KEY_CATEGORY_NAME];
+        $filtered = array_filter($attributes, fn($item) => !in_array($item, $exclude));
+
+        $this->writerXlsx->setFilename('products.xlsx');
+        $this->writerXlsx->add(self::PAGE_NAME_PRODUCTS, $filtered);
+        $this->writerXlsx->add(self::PAGE_NAME_RENAME, self::KEYS_RENAME);
+
+        $this->writerXlsx->add(self::PAGE_NAME_LINKED, array_merge([self::KEY_PRODUCT_NAME], self::KEYS_PRODUCT_LINKED));
+
+        $template = [];
+        foreach ($filtered as $attribute) {
+            $template += [$attribute => null];
+        }
+
+        // обойти все скачанные ссылки
+        $iterator = $this->productRepository->iterateAll();
+        $i = 0;
+        foreach ($iterator as $product) {
+            $i++;
+
+            print_r(sprintf("[%d] %s\n", $i, $product->getSku()));
+
+            $data = $product->getProps();
+            $props = array_merge($template, $data);
+
+            $categories = array_map(fn($c) => $c->getHash(), $product->getCategories()->toArray());
+            $props[self::KEY_PRODUCT_CATEGORIES] = $categories;
+
+            foreach ($props as $key => $value) {
+                if (is_array($value)) {
+                    $props[$key] = implode(';', $value);
+                }
+            }
+
+            //die();
+            // write to file
+            $this->writeProductPage($props);
+
+            // для тото чтобы потом переименовать
+            $this->writeRenamePage($props);
+
+            // связанные товары (загруджать посте переименования)
+            $this->writeLinkedPage($props);
+
+            $this->saver->detach($product);
+        }
+
+        //$writer = $this->parser->getWriter();
+        $io->writeln(sprintf('Запись результатов XLS-файл - %s%s', $this->writerXlsx->getFilepath(), $this->writerXlsx->getFilename()));
+        $this->writerXlsx->finish();
+
+        $timeFinish = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Moscow'));
+        $timeDifference = $timeFinish->diff($timeStart);
+        $io->info('Времы выполнения команды: ' . $timeDifference->format('%H часов  %i минут'));
+
+        return Command::SUCCESS;
+    }
+
+    private function writeProductPage(array $data): void
+    {
+        // убрать лишние
+        unset($data[self::KEY_PRODUCT_URL], $data[self::KEY_PRODUCT_BREADCRUMBS], $data[self::KEY_PRODUCT_CATEGORIES], $data[self::KEY_CATEGORY_HASH], $data[self::KEY_CATEGORY_NAME]);
+
+        foreach (self::KEYS_PRODUCT_LINKED as $k) {
+            unset($data[$k]);
+        }
+
+        $this->writerXlsx->add(self::PAGE_NAME_PRODUCTS, $data);
+    }
+
+    private function writeRenamePage(array $props): void
+    {
+        $data = [
+            $props[self::KEY_PRODUCT_HASH],
+            $props[self::KEY_PRODUCT_NAME],
+        ];
+
+        $this->writerXlsx->add(self::PAGE_NAME_RENAME, $data);
+    }
+
+    private function writeLinkedPage(array $props): void
+    {
+        $keys = array_merge([self::KEY_PRODUCT_NAME], self::KEYS_PRODUCT_LINKED);
+        $linked = [];
+        foreach ($keys as $k) {
+            $linked[$k] = $props[$k];
+        }
+
+        $this->writerXlsx->add(self::PAGE_NAME_LINKED, $linked);
+    }
+}

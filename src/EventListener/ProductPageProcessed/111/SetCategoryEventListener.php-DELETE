@@ -1,0 +1,27 @@
+<?php
+
+namespace App\EventListener\ProductPageProcessed;
+
+use App\Event\ProductPageProcessedEvent;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
+
+#[AsEventListener]
+class SetCategoryEventListener
+{
+    const KEY_BREADCRUMBS = '_breadcrumbs';
+    const KEY_CATEGORY = 'Категория';
+    const KEY_CATEGORY_HASH = 'Категория (HASH)';
+
+    public function __invoke(ProductPageProcessedEvent $event): void
+    {
+        $data = $event->getData();
+
+        $breadcrumb = $data->get(self::KEY_BREADCRUMBS);
+
+        $categoryName = array_key_last($breadcrumb);
+        $categoryUrlHash = sha1(end($breadcrumb));
+
+        $data->add(self::KEY_CATEGORY, $categoryName);
+        $data->add(self::KEY_CATEGORY_HASH, $categoryUrlHash);
+    }
+}

@@ -1,0 +1,44 @@
+<?php
+
+namespace App\EventListener;
+
+use App\Entity\Url;
+use App\Event\ProductPagePostProcessedEvent;
+use App\Repository\UrlRepository;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
+
+#[AsEventListener]
+class ProductPagePostProcessedEventListener
+{
+    private int $i = 0;
+
+    public function __construct(
+        private EntityManagerInterface $entityManager,
+        private UrlRepository          $urlRepository,
+    )
+    {
+    }
+
+    public function __invoke(ProductPagePostProcessedEvent $event): void
+    {
+        // todo: ...
+
+        $data = $event->getData();
+
+        $downloadedUrlEntity = (new Url())
+            ->setUrl($data->getUrl())
+            ->setData($data->toArray())
+            ->setStatus(Url::STATUS_OK);
+
+        $this->urlRepository->save($downloadedUrlEntity, true);
+
+        unset($downloadedUrlEntity);
+
+        if ($this->i % 50 === 0) {
+            $this->entityManager->clear();
+            gc_collect_cycles();
+        }
+    }
+}

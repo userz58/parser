@@ -1,0 +1,137 @@
+<?php
+
+namespace App\Utils;
+
+use App\Downloader\DownloaderInterface;
+use League\Flysystem\Filesystem;
+
+/**
+ * Скачивание HTML страницы
+ */
+class DownloaderHtml1 implements DownloaderInterface
+{
+    private string $dir = 'html';
+
+    private string $ext = 'html';
+
+    private string $userAgent = 'Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)';
+
+    public function __construct(
+        private Filesystem    $filesystem,
+        private PathGenerator $pathGenerator,
+    )
+    {
+    }
+
+    // скачать и сохранить файл
+    public function download(string $url): string
+    {
+        $filepath = sprintf('%s/%s.%s', $this->getDir(), $this->pathGenerator->generate($url), $this->getExt());
+
+        if ($this->isFileExists($filepath)) {
+            return $this->read($filepath);
+        }
+
+        $content = $this->getContent($url);
+
+        $this->write($filepath, $content);
+
+        return $content;
+    }
+
+    // скачать и сохранить в директорию
+    public function downloadInto(string $url, string $subDir): string
+    {
+        $filepath = sprintf('%s/%s/%s.%s', $this->getDir(), $subDir, $this->pathGenerator->generate($url), $this->getExt());
+
+        if ($this->isFileExists($filepath)) {
+            return $this->read($filepath);
+        }
+
+        $content = $this->getContent($url);
+
+        $this->write($filepath, $content);
+
+        return $content;
+    }
+
+    // скачать и сохранить в указанный файл
+    public function downloadTo(string $url, string $path): string
+    {
+        $filepath = sprintf('%s/%s', $this->getDir(), $path);
+
+        if ($this->isFileExists($filepath)) {
+            return $this->read($filepath);
+        }
+
+        $content = $this->getContent($url);
+
+        $this->write($filepath, $content);
+
+        return $content;
+    }
+
+    private function getContent(string $url): string
+    {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_USERAGENT, $this->getUserAgent());
+
+        $content = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ((200 !== $httpCode) || (404 == $httpCode)) {
+            throw new \Exception(sprintf("Ошибка загрузки страницы. Код ошибки: %d\nURL: %s", $httpCode, $url));
+        }
+
+        return $content;
+    }
+
+    private function isFileExists(string $filepath): bool
+    {
+        return $this->filesystem->fileExists($filepath);
+    }
+
+    private function read(string $filepath): string
+    {
+        return $this->filesystem->read($filepath);
+    }
+
+    private function write(string $filepath, $content): void
+    {
+        $this->filesystem->write($filepath, $content);
+    }
+
+    public function getDir(): string
+    {
+        return $this->dir;
+    }
+
+    public function setDir(string $dir): void
+    {
+        $this->dir = $dir;
+    }
+
+    public function getExt(): string
+    {
+        return $this->ext;
+    }
+
+    public function setExt(string $ext): void
+    {
+        $this->ext = $ext;
+    }
+
+    public function getUserAgent(): string
+    {
+        return $this->userAgent;
+    }
+
+    public function setUserAgent(string $userAgent): void
+    {
+        $this->userAgent = $userAgent;
+    }
+}

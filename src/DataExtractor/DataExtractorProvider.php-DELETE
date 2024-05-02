@@ -1,0 +1,31 @@
+<?php
+
+namespace App\DataExtractor;
+
+use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
+
+class DataExtractorProvider
+{
+    public function __construct(
+        #[TaggedIterator(ExtractorInterface::class)]
+        private iterable $extractors,
+    )
+    {
+    }
+
+    public function filter(string $parserCode, string $pageType): array
+    {
+        $filtered = [];
+        foreach ($this->extractors as $extractor) {
+            $reflection = new \ReflectionClass($extractor::class);
+            $classAttributes = $reflection->getAttributes();
+            $instance = $classAttributes[0]->newInstance();
+
+            if (in_array($parserCode, $instance->supportedParsers) && in_array($pageType, $instance->supportedPageTypes)) {
+                $filtered[] = $extractor;
+            }
+        }
+
+        return $filtered;
+    }
+}

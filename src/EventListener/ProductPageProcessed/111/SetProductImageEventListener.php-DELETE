@@ -1,0 +1,24 @@
+<?php
+
+namespace App\EventListener\ProductPageProcessed;
+
+use App\Event\ProductPageProcessedEvent;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
+
+#[AsEventListener]
+class SetProductImageEventListener
+{
+    const KEY_MAIN_IMAGE = 'Изображение';
+
+    const KEY_MORE_IMAGES = 'Изображения (дополнительные)';
+
+    public function __invoke(ProductPageProcessedEvent $event): void
+    {
+        $data = $event->getData();
+
+        $images = $data->get(self::KEY_MORE_IMAGES);
+
+        $data->add(self::KEY_MAIN_IMAGE, array_shift($images));
+        $data->set(self::KEY_MORE_IMAGES, $images);
+    }
+}
