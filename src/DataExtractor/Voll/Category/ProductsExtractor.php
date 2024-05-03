@@ -38,22 +38,33 @@ class ProductsExtractor implements ExtractorInterface
         }
 
         $productsList = $crawler->filter($this->selector)->each(function (Crawler $node, $i) {
+            $sku = null;
             if ($node->filter('.article span')->count() > 0) {
                 $sku = $node->filter('.article span')->text();
-            } else {
-                $sku = null;
+            }
+
+            $price = null;
+            $currency = null;
+            if ($node->filter('.price_val[itemprop="price"]')->count() > 0) {
+                $price = $node->filter('.price_val[itemprop="price"]')->attr('content');
+                $currency = $node->filter('.currency[itemprop="priceCurrency"]')->attr('content');
+            }
+
+            $stickers = [];
+            if ($node->filter('.stickers > .stickers-wrapper > div')->count() > 0) {
+                $stickers = $node->filter('.stickers > .stickers-wrapper > div')->each(function (Crawler $stickerNode, $k) {
+                    return $stickerNode->text();
+                });
             }
 
             return [
-                'sku' => $sku,
                 'uri' => $node->filter('.title a')->attr('href'),
-                'name' => $node->filter('.title a')->text(),
-                'image' => $node->filter('img[itemprop="image"]')->attr('src'),
-                //'stickers' => $node->filter('.stickers > .stickers-wrapper > div')->text(),
-
-                //stickers
-                //price
-                //currency
+                'Артикул' => $sku,
+                'Название' => $node->filter('.title a')->text(),
+                'Изображение' => $node->filter('img[itemprop="image"]')->attr('src'),
+                'Цена' => $price,
+                'Валюта' => $currency,
+                'Хит' => $stickers,
                 //availability
             ];
         });
@@ -62,11 +73,17 @@ class ProductsExtractor implements ExtractorInterface
         foreach ($productsList as $value) {
             $url = sprintf('%s%s', self::BASE_HREF, $value['uri']);
             $hash = sha1($url);
-            $formatted[$value['sku']] = [
+            $img = sprintf('%s%s', self::BASE_HREF, $value['Изображение']);
+
+            $formatted[$value['Артикул']] = [
                 'hash' => $hash,
                 'url' => $url,
-                'Артикул производителя' => $this->formatter->format($value['sku']),
-                'Название' => $this->formatter->format($value['name']),
+                'Артикул' => $this->formatter->format($value['Артикул']),
+                'Название' => $this->formatter->format($value['Название']),
+                'Изображение' => $img,
+                'Цена' => $value['Цена'],
+                'Валюта' => $value['Валюта'],
+                'Хит' => implode(';', $value['Хит']),
             ];
 
             $this->pool->add($url);

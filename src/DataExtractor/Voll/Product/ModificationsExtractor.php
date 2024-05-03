@@ -25,28 +25,23 @@ class ModificationsExtractor implements ExtractorInterface
     public function extract(Crawler $crawler): array
     {
         $values = $crawler->filter($this->selector)->each(function (Crawler $node, $i) {
-            $productUrl = $node->filter('meta[itemprop="url"]');
-            $productName = $node->filter('meta[itemprop="name"]');
-
             return [
-                'url' => $productUrl,
-                'name' => $productName,
+                'uri' => $node->filter('meta[itemprop="url"]')->attr('content'),
+                'name' => $node->filter('meta[itemprop="name"]')->attr('content'),
             ];
         });
 
-        $formatted = $this->format($values);
+        $formatted = [];
+        foreach ($values as $value) {
+            $url = printf('%s%s', self::BASE_HREF, $value['uri']);
+            $key = sha1($url);
+            $formatted[$key] = $value['name'];
+        }
 
         if ([] == $formatted) {
             return [];
         }
 
         return [$this->label => $formatted];
-    }
-
-    private function format(array $values): array
-    {
-        // todo: ...
-
-        return $values;
     }
 }

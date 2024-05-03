@@ -105,7 +105,7 @@ class ParserProductsCreateCommand extends Command
 
         $this->saver->flush(true);
 
-        $io->success('You have a new command! Now make it your own! Pass --help to see your options.');
+        $io->success('Товары сохранены.');
 
         return Command::SUCCESS;
     }

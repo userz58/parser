@@ -20,7 +20,7 @@ class LinkedProductsExtractor implements ExtractorInterface
 {
     const BASE_HREF = 'https://voll.ru';
 
-    protected string $label = 'Модикации';
+    protected string $label = 'Модификации';
 
     protected string $selector = '.detail .tab-content #modifications .module_products_list .item';
 

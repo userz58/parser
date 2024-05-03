@@ -22,6 +22,7 @@ class VollParser implements ParserInterface
 
     private array $startUrls = [
         'https://voll.ru/product/',
+        //'https://voll.ru/product/rezbonareznye-kluppy/elektricheskie-kluppy/elektricheskiy-klupp-voll-v-matic-b2-s-naborom-golovok-1-2-quot-2-quot-2-10050/',
         //'https://voll.ru/product/rezbonareznye-kluppy/elektricheskie-kluppy/elektricheskiy-klupp-voll-v-matic-b1-s-naborom-golovok-1-2-quot-1-1-4-quot-2-10040/',
         // --> test
         // <-- test
@@ -66,9 +67,7 @@ class VollParser implements ParserInterface
 
         while ($this->pool->length() !== 0) {
             $i++;
-
             $url = $this->pool->get();
-            //dump($url);
             print_r(sprintf("[%d из %d] %s\n", $i, $this->pool->length(), $url));
 
             $html = $this->downloader->download($url);
@@ -78,19 +77,28 @@ class VollParser implements ParserInterface
             }
 
             $crawler = new Crawler($html);
+
             foreach ($this->processors as $processor) {
                 if ($processor->isSupport($crawler)) {
                     try {
                         $data = $processor->process($url, $crawler);
-                        // dump($processor->getType() . ' - OK');
+                        //dump($processor->getType() . ' - OK');
                     } catch (\Exception $exception) {
+                        dump($exception);
+                        dump($processor->getType() . ' - ERROR');
                         die();
                         //$extractedData = (new ExtractedData())->setUrl($url)->setStatus(ExtractedData::STATUS_ERROR);
                         //$this->saver->save($extractedData, true);
                         //$this->saver->detach($extractedData);
-
                         continue;
                     }
+
+                    /*
+                    if($processor->getType() === 'category') {
+                        dump($data);
+                        die();
+                    }
+                    */
                 }
             }
 

@@ -22,12 +22,12 @@ use Symfony\Component\Console\Style\SymfonyStyle;
     name: 'parser:products-write',
     description: 'Запись товаров в файл',
 )]
-class ParserProductsWriteCommand extends Command
+class ParserProductsWriteCommand2 extends Command
 {
     private const BATCH_SIZE = 20;
 
     private const PAGE_NAME_PRODUCTS = 'Товары';
-    private const PAGE_NAME_RENAME = 'Переименовать товары';
+    private const PAGE_NAME_RENAME = 'Переименовать товароы';
     private const PAGE_NAME_LINKED = 'Связанные товары';
     private const KEY_CATEGORY_HASH = '_category_hash';
     private const KEY_CATEGORY_NAME = '_category_name';
@@ -37,9 +37,7 @@ class ParserProductsWriteCommand extends Command
     private const KEY_PRODUCT_BREADCRUMBS = '_breadcrumbs';
     private const KEY_PRODUCT_URL = 'url';
     private const KEYS_RENAME = ['hash', 'Название товара'];
-
-    //private const KEYS_PRODUCT_LINKED = ['Аналоги по мощности', 'Дополнительное оборудование', 'Связанные товары', 'Запчасти', 'Варианты исполнения', 'Расходные материалы для ТО'];
-    //private const KEYS_PRODUCT_LINKED = ['Статьи', 'Услуги', 'Документы', 'Комплектующие', 'Запчасти', 'Модификации'];
+    private const KEYS_PRODUCT_LINKED = ['Аналоги по мощности', 'Дополнительное оборудование', 'Связанные товары', 'Запчасти', 'Варианты исполнения', 'Расходные материалы для ТО'];
 
 
     public function __construct(
@@ -67,18 +65,17 @@ class ParserProductsWriteCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $io->info('START ' . $timeStart->format('d-m-Y, H:i:s'));
 
-        $attributes = array_merge([self::KEY_PRODUCT_CATEGORIES], $this->attributeRepository->getAll());
-        //$attributes = $this->attributeRepository->getAll();
+        //$attributes = array_merge([self::KEY_PRODUCT_CATEGORIES], $this->attributeRepository->getAll());
+        $attributes = $this->attributeRepository->getAll();
 
         $exclude = [self::KEY_PRODUCT_URL, self::KEY_PRODUCT_BREADCRUMBS, self::KEY_CATEGORY_HASH, self::KEY_CATEGORY_NAME];
         $filtered = array_filter($attributes, fn($item) => !in_array($item, $exclude));
 
         $this->writerXlsx->setFilename('products.xlsx');
-
         $this->writerXlsx->add(self::PAGE_NAME_PRODUCTS, $filtered);
         $this->writerXlsx->add(self::PAGE_NAME_RENAME, self::KEYS_RENAME);
 
-        //$this->writerXlsx->add(self::PAGE_NAME_LINKED, array_merge([self::KEY_PRODUCT_NAME], self::KEYS_PRODUCT_LINKED));
+        $this->writerXlsx->add(self::PAGE_NAME_LINKED, array_merge([self::KEY_PRODUCT_NAME], self::KEYS_PRODUCT_LINKED));
 
         $template = [];
         foreach ($filtered as $attribute) {
@@ -95,9 +92,7 @@ class ParserProductsWriteCommand extends Command
 
             $data = $product->getProps();
 
-            //dump($data);
-            //dump(array_keys($data));
-            //die();
+            dump($data);
 
             $props = array_merge($template, $data);
 
@@ -118,7 +113,7 @@ class ParserProductsWriteCommand extends Command
             $this->writeRenamePage($props);
 
             // связанные товары (загруджать посте переименования)
-            //$this->writeLinkedPage($props);
+            $this->writeLinkedPage($props);
 
             $this->saver->detach($product);
         }
@@ -137,8 +132,11 @@ class ParserProductsWriteCommand extends Command
     private function writeProductPage(array $data): void
     {
         // убрать лишние
-        unset($data[self::KEY_PRODUCT_URL], $data[self::KEY_PRODUCT_BREADCRUMBS], $data[self::KEY_CATEGORY_HASH], $data[self::KEY_CATEGORY_NAME]);
-        //unset($data[self::KEY_PRODUCT_URL], $data[self::KEY_PRODUCT_BREADCRUMBS], $data[self::KEY_PRODUCT_CATEGORIES], $data[self::KEY_CATEGORY_HASH], $data[self::KEY_CATEGORY_NAME]);
+        unset($data[self::KEY_PRODUCT_URL], $data[self::KEY_PRODUCT_BREADCRUMBS], $data[self::KEY_PRODUCT_CATEGORIES], $data[self::KEY_CATEGORY_HASH], $data[self::KEY_CATEGORY_NAME]);
+
+        foreach (self::KEYS_PRODUCT_LINKED as $k) {
+            unset($data[$k]);
+        }
 
         $this->writerXlsx->add(self::PAGE_NAME_PRODUCTS, $data);
     }
@@ -151,5 +149,16 @@ class ParserProductsWriteCommand extends Command
         ];
 
         $this->writerXlsx->add(self::PAGE_NAME_RENAME, $data);
+    }
+
+    private function writeLinkedPage(array $props): void
+    {
+        $keys = array_merge([self::KEY_PRODUCT_NAME], self::KEYS_PRODUCT_LINKED);
+        $linked = [];
+        foreach ($keys as $k) {
+            $linked[$k] = $props[$k];
+        }
+
+        $this->writerXlsx->add(self::PAGE_NAME_LINKED, $linked);
     }
 }

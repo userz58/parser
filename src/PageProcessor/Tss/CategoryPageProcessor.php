@@ -18,7 +18,6 @@ class CategoryPageProcessor extends AbstractProcessor implements ProcessorInterf
         'body#catalog',
         'body#category',
         'body#portable-generators',
-
     ];
 
     public function isSupport(Crawler $crawler): bool

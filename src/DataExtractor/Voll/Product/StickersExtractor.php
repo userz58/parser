@@ -38,6 +38,7 @@ class StickersExtractor implements ExtractorInterface
         }
 
         $formatted = array_map(fn($value) => $this->formatter->format($value), $values);
+        $formatted = implode(';', $formatted);
 
         return [$this->label => $formatted];
     }

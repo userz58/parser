@@ -31,19 +31,19 @@ class LinkedServiceExtractor implements ExtractorInterface
             ];
         });
 
-        $formatted = $this->format($values);
+        $formatted = [];
+        foreach ($values as $value) {
+            $url = printf('%s%s', self::BASE_HREF, $value['uri']);
+            $key = sha1($url);
+            $formatted[$key] = $value['name'];
+
+            // todo: download;
+        }
 
         if ([] == $formatted) {
             return [];
         }
 
         return [$this->label => $formatted];
-    }
-
-    private function format(array $values): array
-    {
-        //$values = array_map(fn($value) => sprintf('%s%s', self::BASE_HREF, $value), $values);
-
-        return $values;
     }
 }

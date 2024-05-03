@@ -195,3 +195,6 @@ tar -zcvf /Volumes/samsung/common-filestorage/cat-parts.tar.gz parts-cat-com/
 docker system prune -a -f --volumes
 
 
+git remote add origin https://github.com/userz58/parser.git
+git branch -M main
+git push -u origin main

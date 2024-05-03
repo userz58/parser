@@ -16,8 +16,8 @@ class WriteCategoriesEventListener
 
     //const KEY_CATEGORIES_NAME = '_category_name';
 
-    const PAGE_NAME_CATEGORIES_HASH = 'Категории1';
-    const PAGE_NAME_CATEGORIES = 'Категории2';
+    const PAGE_NAME_CATEGORIES_HASH = 'Категории (hash)';
+    const PAGE_NAME_CATEGORIES = 'Категории (для переименования)';
 
     public function __construct(
         private SluggerInterface $slugger,

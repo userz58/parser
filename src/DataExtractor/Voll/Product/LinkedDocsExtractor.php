@@ -25,26 +25,27 @@ class LinkedDocsExtractor implements ExtractorInterface
     public function extract(Crawler $crawler): array
     {
         $values = $crawler->filter($this->selector)->each(function (Crawler $node, $i) {
-            //td
             return [
                 'name' => $node->text(),
                 'uri' => $node->attr('href'),
             ];
         });
 
-        $formatted = $this->format($values);
+        $values = array_filter($values, fn($item) => '/landings/catalog-pdf/' !== $item['uri']);
+
+        $formatted = [];
+        foreach ($values as $value) {
+            $url = printf('%s%s', self::BASE_HREF, $value['uri']);
+            $key = sha1($url);
+            $formatted[$key] = $value['name'];
+
+            // todo: download;
+        }
 
         if ([] == $formatted) {
             return [];
         }
 
         return [$this->label => $formatted];
-    }
-
-    private function format(array $values): array
-    {
-        //$values = array_map(fn($value) => sprintf('%s%s', self::BASE_HREF, $value), $values);
-
-        return $values;
     }
 }
