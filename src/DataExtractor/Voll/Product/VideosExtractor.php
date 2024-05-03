@@ -16,11 +16,7 @@ use Symfony\Component\DomCrawler\Crawler;
 )]
 class VideosExtractor implements ExtractorInterface
 {
-    const BASE_HREF = 'https://voll.ru';
-
-    //template youtube
-
-    protected string $label = 'Видео';
+    protected string $label = 'Видео (код из Youtube)';
 
     protected string $selector = '.detail .tab-content #video .video_body iframe';
 
@@ -30,19 +26,10 @@ class VideosExtractor implements ExtractorInterface
             return $node->attr('src');
         });
 
-        $formatted = $this->format($values);
-
-        if ([] == $formatted) {
+        if ([] == $values) {
             return [];
         }
 
-        return [$this->label => $formatted];
-    }
-
-    private function format(array $values): array
-    {
-        // ...
-
-        return $values;
+        return [$this->label => $values];
     }
 }

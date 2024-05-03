@@ -38,9 +38,6 @@ class ParserProductsWriteCommand extends Command
     private const KEY_PRODUCT_URL = 'url';
     private const KEYS_RENAME = ['hash', 'Название товара'];
 
-    //private const KEYS_PRODUCT_LINKED = ['Аналоги по мощности', 'Дополнительное оборудование', 'Связанные товары', 'Запчасти', 'Варианты исполнения', 'Расходные материалы для ТО'];
-    //private const KEYS_PRODUCT_LINKED = ['Статьи', 'Услуги', 'Документы', 'Комплектующие', 'Запчасти', 'Модификации'];
-
 
     public function __construct(
         private ProductAttributeRepository $attributeRepository,
@@ -68,7 +65,6 @@ class ParserProductsWriteCommand extends Command
         $io->info('START ' . $timeStart->format('d-m-Y, H:i:s'));
 
         $attributes = array_merge([self::KEY_PRODUCT_CATEGORIES], $this->attributeRepository->getAll());
-        //$attributes = $this->attributeRepository->getAll();
 
         $exclude = [self::KEY_PRODUCT_URL, self::KEY_PRODUCT_BREADCRUMBS, self::KEY_CATEGORY_HASH, self::KEY_CATEGORY_NAME];
         $filtered = array_filter($attributes, fn($item) => !in_array($item, $exclude));
@@ -77,8 +73,6 @@ class ParserProductsWriteCommand extends Command
 
         $this->writerXlsx->add(self::PAGE_NAME_PRODUCTS, $filtered);
         $this->writerXlsx->add(self::PAGE_NAME_RENAME, self::KEYS_RENAME);
-
-        //$this->writerXlsx->add(self::PAGE_NAME_LINKED, array_merge([self::KEY_PRODUCT_NAME], self::KEYS_PRODUCT_LINKED));
 
         $template = [];
         foreach ($filtered as $attribute) {
@@ -90,15 +84,9 @@ class ParserProductsWriteCommand extends Command
         $i = 0;
         foreach ($iterator as $product) {
             $i++;
-
             print_r(sprintf("[%d] %s\n", $i, $product->getSku()));
 
             $data = $product->getProps();
-
-            //dump($data);
-            //dump(array_keys($data));
-            //die();
-
             $props = array_merge($template, $data);
 
             $categories = array_map(fn($c) => $c->getHash(), $product->getCategories()->toArray());
@@ -110,20 +98,15 @@ class ParserProductsWriteCommand extends Command
                 }
             }
 
-            //die();
             // write to file
             $this->writeProductPage($props);
 
             // для тото чтобы потом переименовать
             $this->writeRenamePage($props);
 
-            // связанные товары (загруджать посте переименования)
-            //$this->writeLinkedPage($props);
-
             $this->saver->detach($product);
         }
 
-        //$writer = $this->parser->getWriter();
         $io->writeln(sprintf('Запись результатов XLS-файл - %s%s', $this->writerXlsx->getFilepath(), $this->writerXlsx->getFilename()));
         $this->writerXlsx->finish();
 
@@ -138,7 +121,6 @@ class ParserProductsWriteCommand extends Command
     {
         // убрать лишние
         unset($data[self::KEY_PRODUCT_URL], $data[self::KEY_PRODUCT_BREADCRUMBS], $data[self::KEY_CATEGORY_HASH], $data[self::KEY_CATEGORY_NAME]);
-        //unset($data[self::KEY_PRODUCT_URL], $data[self::KEY_PRODUCT_BREADCRUMBS], $data[self::KEY_PRODUCT_CATEGORIES], $data[self::KEY_CATEGORY_HASH], $data[self::KEY_CATEGORY_NAME]);
 
         $this->writerXlsx->add(self::PAGE_NAME_PRODUCTS, $data);
     }

@@ -17,7 +17,7 @@ use Symfony\Component\DomCrawler\Crawler;
 )]
 class StickersExtractor implements ExtractorInterface
 {
-    protected string $label = '_hit';
+    protected string $label = 'Наши предложения';
 
     protected string $selector = '.detail .galery .stickers > .stickers-wrapper > div';
 

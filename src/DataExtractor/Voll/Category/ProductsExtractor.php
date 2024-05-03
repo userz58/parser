@@ -64,7 +64,7 @@ class ProductsExtractor implements ExtractorInterface
                 'Изображение' => $node->filter('img[itemprop="image"]')->attr('src'),
                 'Цена' => $price,
                 'Валюта' => $currency,
-                'Хит' => $stickers,
+                'Наши предложения' => $stickers,
                 //availability
             ];
         });
@@ -83,7 +83,7 @@ class ProductsExtractor implements ExtractorInterface
                 'Изображение' => $img,
                 'Цена' => $value['Цена'],
                 'Валюта' => $value['Валюта'],
-                'Хит' => implode(';', $value['Хит']),
+                'Наши предложения' => implode(';', $value['Наши предложения']),
             ];
 
             $this->pool->add($url);

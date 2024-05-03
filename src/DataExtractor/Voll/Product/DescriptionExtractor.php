@@ -48,9 +48,16 @@ class DescriptionExtractor implements ExtractorInterface
     {
         //dump($value);
         $value = iconv(mb_detect_encoding($value, mb_detect_order(), true), "UTF-8", $value);
-        $value = preg_replace( '/[\x{200B}-\x{200D}\x{FEFF}]/u', '', $value );
-        $value = str_replace("(", " (", $value);
-        $value = str_replace("&nbsp;</", "</", $value);
+        $value = preg_replace('/[\x{200B}-\x{200D}\x{FEFF}]/u', '', $value);
+        $value = str_replace([
+            "(",
+            "&nbsp;</",
+            ">&nbsp;",
+        ], [
+            " (",
+            "</",
+            ">",
+        ], $value);
         $value = preg_replace('/[\t\n\s]+/', ' ', $value);
         $value = preg_replace('~>\s+<~', '><', $value);
         $value = preg_replace('~>\s+~', '>', $value);
