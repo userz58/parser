@@ -1,40 +1,42 @@
 <?php
 
-namespace App\DataExtractor\Voll\Product;
+namespace App\DataExtractor\Voll;
 
 use App\AsAttribute\AsExtractor;
 use App\DataExtractor\ExtractorInterface;
 use App\Formatter\StringFormatter;
-use App\Parser\VollParser;
 use App\Parser\PageTypes;
 use App\Parser\ValueTypes;
+use App\Parser\VollParser;
 use Symfony\Component\DomCrawler\Crawler;
 
 #[AsExtractor(
     supportedParsers: [VollParser::CODE],
-    supportedPageTypes: [PageTypes::PRODUCT],
+    supportedPageTypes: [PageTypes::CATEGORY, PageTypes::ARTICLE],
     valueType: ValueTypes::STRING,
 )]
-class SummaryExtractor implements ExtractorInterface
+class NameExtractor implements ExtractorInterface
 {
-    protected string $label = 'Анонс';
+    protected string $label = 'Название';
 
-    protected string $selector = '.detail .info .previewtext[itemprop="description"]';
+    protected string $selector = 'h1#pagetitle';
 
     public function __construct(
         private StringFormatter $formatter,
     )
     {
     }
+
     public function extract(Crawler $crawler): array
     {
-        if (0 == $crawler->filter($this->selector)->count()) {
+        if ($crawler->filter($this->selector)->count() == 0) {
             throw new \RuntimeException(sprintf('Не найден элемент для селектора - %s [%s]', $this->label, $this->selector));
         }
 
-        $value = $crawler->filter($this->selector)->text();
-        $value = $this->formatter->format($value);
+        $title = $crawler->filter($this->selector)->html();
 
-        return [$this->label => $value];
+        $formatted = $this->formatter->format($title);
+
+        return [$this->label => $formatted];
     }
 }

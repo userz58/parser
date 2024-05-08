@@ -3,6 +3,7 @@
 namespace App\DataExtractor\Voll\Product;
 
 use App\AsAttribute\AsExtractor;
+use App\DataExtractor\ExtractorInterface;
 use App\Formatter\StringFormatter;
 use App\Parser\VollParser;
 use App\Parser\PageTypes;
@@ -15,16 +16,15 @@ use Symfony\Component\DomCrawler\Crawler;
     supportedPageTypes: [PageTypes::PRODUCT],
     valueType: ValueTypes::LIST,
 )]
-class LinkedPartsExtractor
+class LinkedDopPartsExtractor implements ExtractorInterface
 {
     const BASE_HREF = 'https://voll.ru';
 
-    protected string $label = 'Запчасти';
+    protected string $label = 'Рекомендованные товары (запчасти/принадлежности)';
 
     protected string $selectorP = '.detail .tab-content #dopparts .module_products_list .item';
 
     protected string $selectorA = '.detail .tab-content #accessories .module_products_list .item';
-
 
     public function __construct(
         private StringFormatter $formatter,

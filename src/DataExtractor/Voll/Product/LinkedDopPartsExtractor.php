@@ -16,13 +16,15 @@ use Symfony\Component\DomCrawler\Crawler;
     supportedPageTypes: [PageTypes::PRODUCT],
     valueType: ValueTypes::LIST,
 )]
-class LinkedProductsExtractor implements ExtractorInterface
+class LinkedDopPartsExtractor implements ExtractorInterface
 {
     const BASE_HREF = 'https://voll.ru';
 
-    protected string $label = 'Модификации';
+    protected string $label = 'Рекомендованные товары (запчасти/принадлежности)';
 
-    protected string $selector = '.detail .tab-content #modifications .module_products_list .item';
+    protected string $selectorP = '.detail .tab-content #dopparts .module_products_list .item';
+
+    protected string $selectorA = '.detail .tab-content #accessories .module_products_list .item';
 
     public function __construct(
         private StringFormatter $formatter,
@@ -33,12 +35,21 @@ class LinkedProductsExtractor implements ExtractorInterface
 
     public function extract(Crawler $crawler): array
     {
-        $values = $crawler->filter($this->selector)->each(function (Crawler $node, $i) {
+        $parts = $crawler->filter($this->selectorP)->each(function (Crawler $node, $i) {
             return [
                 'name' => $node->filter('meta[itemprop="name"]')->attr('content'),
                 'uri' => $node->filter('meta[itemprop="url"]')->attr('content'),
             ];
         });
+
+        $accessories = $crawler->filter($this->selectorA)->each(function (Crawler $node, $i) {
+            return [
+                'name' => $node->filter('meta[itemprop="name"]')->attr('content'),
+                'uri' => $node->filter('meta[itemprop="url"]')->attr('content'),
+            ];
+        });
+
+        $values = array_merge($parts, $accessories);
 
         $formatted = [];
 
@@ -54,6 +65,8 @@ class LinkedProductsExtractor implements ExtractorInterface
         if ([] == $formatted) {
             return [];
         }
+
+        $formatted = array_unique($formatted);
 
         return [$this->label => $formatted];
     }

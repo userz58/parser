@@ -1,6 +1,6 @@
 <?php
 
-namespace App\DataExtractor\Voll\Product;
+namespace App\DataExtractor\Voll\Article;
 
 use App\AsAttribute\AsExtractor;
 use App\DataExtractor\ExtractorInterface;
@@ -11,22 +11,22 @@ use Symfony\Component\DomCrawler\Crawler;
 
 #[AsExtractor(
     supportedParsers: [VollParser::CODE],
-    supportedPageTypes: [PageTypes::PRODUCT],
+    supportedPageTypes: [PageTypes::ARTICLE],
     valueType: ValueTypes::STRING,
 )]
-class PriceCurrencyExtractor implements ExtractorInterface
+class DateExtractor implements ExtractorInterface
 {
-    protected string $label = 'Валюта';
+    protected string $label = 'Дата';
 
-    protected string $selector = '.detail .info .price [itemprop=priceCurrency]';
+    protected string $selector = '.detail .period .date';
 
     public function extract(Crawler $crawler): array
     {
         if (0 == $crawler->filter($this->selector)->count()) {
-            return [];
+            return [$this->label => null];
         }
 
-        $value = $crawler->filter($this->selector)->attr('content');
+        $value = $crawler->filter($this->selector)->text();
 
         return [$this->label => $value];
     }

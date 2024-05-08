@@ -1,6 +1,6 @@
 <?php
 
-namespace App\DataExtractor\Voll\Product;
+namespace App\DataExtractor\Voll\Article;
 
 use App\AsAttribute\AsExtractor;
 use App\DataExtractor\ExtractorInterface;
@@ -13,16 +13,16 @@ use Symfony\Component\DomCrawler\Crawler;
 
 #[AsExtractor(
     supportedParsers: [VollParser::CODE],
-    supportedPageTypes: [PageTypes::PRODUCT],
+    supportedPageTypes: [PageTypes::ARTICLE],
     valueType: ValueTypes::LIST,
 )]
 class LinkedProductsExtractor implements ExtractorInterface
 {
     const BASE_HREF = 'https://voll.ru';
 
-    protected string $label = 'Модификации';
+    protected string $label = 'Связанные товары';
 
-    protected string $selector = '.detail .tab-content #modifications .module_products_list .item';
+    protected string $selector = '.detail .linked[itemtype="http://schema.org/ItemList"] .item[itemtype="http://schema.org/ListItem"]';
 
     public function __construct(
         private StringFormatter $formatter,
@@ -35,8 +35,8 @@ class LinkedProductsExtractor implements ExtractorInterface
     {
         $values = $crawler->filter($this->selector)->each(function (Crawler $node, $i) {
             return [
-                'name' => $node->filter('meta[itemprop="name"]')->attr('content'),
-                'uri' => $node->filter('meta[itemprop="url"]')->attr('content'),
+                'name' => $node->filter('[itemprop="name"]')->text(),
+                'uri' => $node->filter('a[itemprop="url"]')->attr('href'),
             ];
         });
 
@@ -52,7 +52,7 @@ class LinkedProductsExtractor implements ExtractorInterface
         }
 
         if ([] == $formatted) {
-            return [];
+            return [$this->label => []];
         }
 
         return [$this->label => $formatted];

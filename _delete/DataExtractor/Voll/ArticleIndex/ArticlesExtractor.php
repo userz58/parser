@@ -1,6 +1,6 @@
 <?php
 
-namespace App\DataExtractor\Voll\Index;
+namespace App\DataExtractor\Voll\ArticleIndex;
 
 use App\AsAttribute\AsExtractor;
 use App\DataExtractor\ExtractorInterface;
@@ -13,16 +13,16 @@ use Symfony\Component\DomCrawler\Crawler;
 
 #[AsExtractor(
     supportedParsers: [VollParser::CODE],
-    supportedPageTypes: [PageTypes::INDEX],
+    supportedPageTypes: [PageTypes::ARTICLES],
     valueType: ValueTypes::LIST,
 )]
-class IndexCategoriesExtractor implements ExtractorInterface
+class ArticlesExtractor implements ExtractorInterface
 {
     const BASE_HREF = 'https://voll.ru';
 
-    protected string $label = 'Разделы';
+    protected string $label = 'Статьи';
 
-    protected string $selector = '.section-content-wrapper > .catalog > .items .item > .info a';
+    protected string $selector = '.blog .items .item';
 
     public function __construct(
         private StringFormatter $formatter,
@@ -37,32 +37,29 @@ class IndexCategoriesExtractor implements ExtractorInterface
             throw new \RuntimeException(sprintf('Не найден элемент для селектора - %s [%s]', $this->label, $this->selector));
         }
 
-        $values = $crawler->filter($this->selector)->each(function (Crawler $node, $i) {
+        $list = $crawler->filter($this->selector)->each(function (Crawler $node, $i) {
             return [
-                'label' => $node->text(),
-                //'label' => $node->attr('title'),
-                'uri' => $node->attr('href'),
-                //'img' => $node->filter('img')->attr('src'),
+                'uri' => $node->filter('.title a')->attr('href'),
+                'Название' => $node->filter('.title a')->text(),
+                'Изображение' => $node->filter('.image img')->attr('src'),
             ];
         });
 
         $formatted = [];
-        foreach ($values as $value) {
+        foreach ($list as $value) {
             $url = sprintf('%s%s', self::BASE_HREF, $value['uri']);
+            $hash = sha1($url);
 
-            $formatted[sha1($url)] = [
-                'hash' => sha1($url),
+            $formatted[$hash] = [
+                'hash' => $hash,
                 'url' => $url,
-                'Название' => $this->formatter->format($value['label']),
-                //'Изображение' => sprintf('%s%s', self::BASE_HREF, $value['img']),
-                //'Раздел-родитель' => '',
+                'Название' => $this->formatter->format($value['Название']),
+                'Изображение' => sprintf('%s%s', self::BASE_HREF, $value['Изображение']),
             ];
 
             $this->pool->add($url);
         }
 
-        return [
-            $this->label => $formatted
-        ];
+        return [$this->label => $formatted];
     }
 }

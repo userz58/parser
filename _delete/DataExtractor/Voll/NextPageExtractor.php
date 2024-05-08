@@ -1,18 +1,18 @@
 <?php
 
-namespace App\DataExtractor\Voll\Category;
+namespace App\DataExtractor\Voll;
 
 use App\AsAttribute\AsExtractor;
 use App\DataExtractor\ExtractorInterface;
-use App\Parser\VollParser;
 use App\Parser\PageTypes;
 use App\Parser\ValueTypes;
+use App\Parser\VollParser;
 use App\Pool\Pool;
 use Symfony\Component\DomCrawler\Crawler;
 
 #[AsExtractor(
     supportedParsers: [VollParser::CODE],
-    supportedPageTypes: [PageTypes::CATEGORY],
+    supportedPageTypes: [PageTypes::CATEGORY, PageTypes::ARTICLES],
     valueType: ValueTypes::LIST,
 )]
 class NextPageExtractor implements ExtractorInterface
