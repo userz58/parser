@@ -1,15 +1,15 @@
 <?php
 
-namespace App\EventListener\CategoryPageProcessed;
+namespace App\EventListener\ArticlesPageProcessed;
 
-use App\Event\CategoryPageProcessedEvent;
+use App\Event\ArticleIndexPageProcessedEvent;
 use App\Utils\WriterXlsx;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
 #[AsEventListener]
-class WriteCategoryProductsEventListener
+class WriteArticlesEventListener
 {
-    const PAGE_NAME = 'Товары (кратко)';
+    const PAGE_NAME = 'Статьи (кратко)';
 
     public function __construct(
         private WriterXlsx $writer,
@@ -17,28 +17,21 @@ class WriteCategoryProductsEventListener
     {
         $this->writer->add(self::PAGE_NAME, [
             'hash',
-            'Артикул',
             'Название',
-            'Цена',
-            'Валюта',
-            'Наши предложения',
             'Изображение для анонса',
         ]);
     }
 
-    public function __invoke(CategoryPageProcessedEvent $event): void
+    public function __invoke(ArticleIndexPageProcessedEvent $event): void
     {
         $data = $event->getData();
-        $products = $data->get('Товары');
+
+        $products = $data->get('Статьи');
 
         foreach ($products as $key => $product) {
             $this->writer->add(self::PAGE_NAME, [
                 'hash' => $product['hash'],
-                'Артикул' => $product['Артикул'],
                 'Название' => $product['Название'],
-                'Цена' => $product['Цена'],
-                'Валюта' => $product['Валюта'],
-                'Наши предложения' => $product['Наши предложения'],
                 'Изображение для анонса' => $product['Изображение'],
             ]);
         }

@@ -2,13 +2,9 @@
 
 namespace App\PageProcessor;
 
-use App\Event\ProductPageProcessedEvent;
 use App\Manager\DataExtractorManager;
 use App\Model\Data;
-use App\Parser\PageTypes;
 use App\Parser\ParserInterface;
-use App\Parser\TssParser;
-use App\Utils\WriterXlsx;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

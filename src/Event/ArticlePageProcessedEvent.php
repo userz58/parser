@@ -5,7 +5,7 @@ namespace App\Event;
 use App\Model\Data;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class ArticleIndexPageProcessedEvent extends Event
+class ArticlePageProcessedEvent extends Event
 {
     public function __construct(
         private Data $data,

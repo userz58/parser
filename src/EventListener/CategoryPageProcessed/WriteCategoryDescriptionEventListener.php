@@ -26,12 +26,13 @@ class WriteCategoryDescriptionEventListener
     public function __invoke(CategoryPageProcessedEvent $event): void
     {
         $data = $event->getData();
+        $values = $data->toArray();
 
         $this->writer->add(self::PAGE_NAME, [
             'hash' => sha1($data->getUrl()),
-            'Название' => $data->get('Название'),
-            'Краткое описание' => $data->get('Краткое описание'),
-            'Описание' => $data->get('Описание'),
+            'Название' => $values['Название'],
+            'Краткое описание' => isset($values['Краткое описание']) ? $values['Краткое описание'] : null,
+            'Описание' => $values['Описание'],
         ]);
     }
 }

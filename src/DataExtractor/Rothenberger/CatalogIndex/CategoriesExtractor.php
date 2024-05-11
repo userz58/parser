@@ -1,28 +1,28 @@
 <?php
 
-namespace App\DataExtractor\Voll\Index;
+namespace App\DataExtractor\Rothenberger\CatalogIndex;
 
 use App\AsAttribute\AsExtractor;
 use App\DataExtractor\ExtractorInterface;
 use App\Formatter\StringFormatter;
-use App\Parser\VollParser;
+use App\Parser\RothenbergerParser;
 use App\Parser\PageTypes;
 use App\Parser\ValueTypes;
 use App\Pool\Pool;
 use Symfony\Component\DomCrawler\Crawler;
 
 #[AsExtractor(
-    supportedParsers: [VollParser::CODE],
+    supportedParsers: [RothenbergerParser::CODE],
     supportedPageTypes: [PageTypes::INDEX],
     valueType: ValueTypes::LIST,
 )]
-class IndexCategoriesExtractor implements ExtractorInterface
+class CategoriesExtractor implements ExtractorInterface
 {
-    const BASE_HREF = 'https://voll.ru';
+    const BASE_HREF = 'https://rothenberger.ru';
 
     protected string $label = 'Разделы';
 
-    protected string $selector = '.section-content-wrapper > .catalog > .items .item > .info a';
+    protected string $selector = '.catalog_section_list .item_block .name > a';
 
     public function __construct(
         private StringFormatter $formatter,
