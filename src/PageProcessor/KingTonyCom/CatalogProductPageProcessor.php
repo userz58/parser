@@ -1,6 +1,6 @@
 <?php
 
-namespace App\PageProcessor\Rothenberger;
+namespace App\PageProcessor\KingTonyCom;
 
 use App\AsAttribute\AsProcessor;
 use App\Event\ProductPageBeforeProcessedEvent;
@@ -10,15 +10,15 @@ use App\Model\Data;
 use App\PageProcessor\AbstractProcessor;
 use App\PageProcessor\ProcessorInterface;
 use App\Parser\PageTypes;
-use App\Parser\RothenbergerParser;
+use App\Parser\KingTonyComParser;
 use Symfony\Component\DomCrawler\Crawler;
 
-#[AsProcessor(supportedParsers: [RothenbergerParser::CODE])]
+#[AsProcessor(supportedParsers: [KingTonyComParser::CODE])]
 class CatalogProductPageProcessor extends AbstractProcessor implements ProcessorInterface
 {
     public const TYPE = PageTypes::PRODUCT;
 
-    private const CHECK_TYPE_SELECTOR = '.product-container[itemtype="http://schema.org/Product"]';
+    private const CHECK_TYPE_SELECTOR = '.p_d_box > h3';
 
     public function isSupport(Crawler $crawler): bool
     {
