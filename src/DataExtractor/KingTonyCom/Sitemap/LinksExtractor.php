@@ -53,8 +53,8 @@ class LinksExtractor implements ExtractorInterface
 
     private array $allow = [
         'https://www.kingtony.com/product/',
-        'https://www.kingtony.com/product_detail.php?',
-        'https://www.kingtony.com/productlist/',
+        //'https://www.kingtony.com/product_detail.php?',
+        //'https://www.kingtony.com/productlist/',
     ];
 
     public function __construct(

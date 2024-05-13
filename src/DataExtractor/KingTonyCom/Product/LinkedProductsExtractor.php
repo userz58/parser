@@ -40,7 +40,7 @@ class LinkedProductsExtractor implements ExtractorInterface
         foreach ($values as $value) {
             $url = $value['url'];
             $formatted[sha1($url)] = trim($value['name']);
-            $this->pool->add($url); // добавить в очередь на скачивание
+            //$this->pool->add($url); // добавить в очередь на скачивание
         }
 
         if ([] == $formatted) {

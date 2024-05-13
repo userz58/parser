@@ -35,6 +35,7 @@ class ParserProductsWriteCommand2 extends Command
     private const KEY_PRODUCT_NAME = 'Наименование';
     private const KEY_PRODUCT_CATEGORIES = 'Категории';
     private const KEY_PRODUCT_BREADCRUMBS = '_breadcrumbs';
+    private const KEY_VARIANTS = '_variants';
     private const KEY_PRODUCT_URL = 'url';
     private const KEYS_RENAME = ['hash', 'Название товара'];
     private const KEYS_PRODUCT_LINKED = ['Аналоги по мощности', 'Дополнительное оборудование', 'Связанные товары', 'Запчасти', 'Варианты исполнения', 'Расходные материалы для ТО'];
@@ -132,7 +133,7 @@ class ParserProductsWriteCommand2 extends Command
     private function writeProductPage(array $data): void
     {
         // убрать лишние
-        unset($data[self::KEY_PRODUCT_URL], $data[self::KEY_PRODUCT_BREADCRUMBS], $data[self::KEY_PRODUCT_CATEGORIES], $data[self::KEY_CATEGORY_HASH], $data[self::KEY_CATEGORY_NAME]);
+        unset($data[self::KEY_PRODUCT_URL], $data[self::KEY_VARIANTS], $data[self::KEY_PRODUCT_BREADCRUMBS], $data[self::KEY_PRODUCT_CATEGORIES], $data[self::KEY_CATEGORY_HASH], $data[self::KEY_CATEGORY_NAME]);
 
         foreach (self::KEYS_PRODUCT_LINKED as $k) {
             unset($data[$k]);

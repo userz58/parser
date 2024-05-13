@@ -75,6 +75,9 @@ class VariantsExtractor implements ExtractorInterface
             'C28' => 'Capacities (Hard steel HRC30)',
             'C29' => 'мм (Нерж сталь 304)',
             'C44' => 'Ролики',
+            'D01' => 'D1, мм',
+            'D02' => 'D2, мм',
+            'D15' => 'Размеры ДхШхВ, мм',
             'S01' => 'S, мм',
             'S02' => 'Std Bold Size (inch|mm)',
             'S03' => 'Capacities Screw size (inch | mm)',
@@ -102,12 +105,10 @@ class VariantsExtractor implements ExtractorInterface
             'S25' => 'Spread, mm|inch',
             'S33' => 'Вес, кг',
             'S37' => 'Поверхность',
-            'D15' => 'Размеры ДхШхВ, мм',
             'N01' => 'Тип',
             'O07' => 'Общая длина, дюйм | мм',
-
+            '001' => 'Размер головки, мм',
             /*
-            '001' => 'Размер, мм',
             '002' => 'Размер, дюйм',
             '003' => 'Размер, дюйм',
             '004' => 'Размер, мм',

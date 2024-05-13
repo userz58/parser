@@ -13,13 +13,15 @@ use Symfony\Component\DomCrawler\Crawler;
 #[AsExtractor(
     supportedParsers: [KingTonyComParser::CODE],
     supportedPageTypes: [PageTypes::PRODUCT],
-    valueType: ValueTypes::STRING,
+    valueType: ValueTypes::LIST,
 )]
-class MpnExtractor implements ExtractorInterface
+class CatalogCategoryExtractor implements ExtractorInterface
 {
-    protected string $label = 'Артикул';
+    protected string $label = '_category_name';
 
-    protected string $selector = '.p_d_box > h3';
+    protected string $labelHash = '_category_hash';
+
+    protected string $selector = '.bread_box li > a';
 
     public function __construct(
         private StringFormatter $formatter,
@@ -33,10 +35,18 @@ class MpnExtractor implements ExtractorInterface
             throw new \RuntimeException(sprintf('Не найден элемент для селектора - %s [%s]', $this->label, $this->selector));
         }
 
-        $value = $crawler->filter($this->selector)->text();
+        $values = $crawler->filter($this->selector)->each(function (Crawler $node, $i) {
+            return [
+                'label' => $node->text(),
+                'url' => $node->attr('href'),
+            ];
+        });
 
-        $value = $this->formatter->format($value);
+        $last = end($values);
 
-        return [$this->label => $value];
+        return [
+            $this->label => $this->formatter->format($last['label']),
+            $this->labelHash => sha1($last['url']),
+        ];
     }
 }
