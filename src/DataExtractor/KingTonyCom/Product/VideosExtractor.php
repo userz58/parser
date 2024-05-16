@@ -16,9 +16,12 @@ use Symfony\Component\DomCrawler\Crawler;
 )]
 class VideosExtractor implements ExtractorInterface
 {
-    protected string $label = 'Видео (только ссылка)';
+    protected string $label = 'Видео (код из Youtube)';
 
     protected string $selector = '#video-tab-pane iframe';
+
+    //private const YOUTUBE_TEMPLATE = '<iframe width="560" height="315" src="https://www.youtube.com/embed/%s" title="Видео - инструмент KingTony" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+    private const YOUTUBE_TEMPLATE = '<iframe width="560" height="315" src="https://www.youtube.com/embed/%s?si=D2_aTC2RaJg6bO6n" title="Видео - инструмент KingTony" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>';
 
     public function extract(Crawler $crawler): array
     {
@@ -26,6 +29,8 @@ class VideosExtractor implements ExtractorInterface
 
         $codes = [];
         foreach ($values as $url) {
+            // regexp https://gist.github.com/ghalusa/6c7f3a00fd2383e5ef33
+
             //if (preg_match('%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/\s]{11})%i', $url, $match)) {
             if (preg_match('%(?:youtube(?:-nocookie)?\.com/(?:[\w\-?&!#=,;]+/[\w\-?&!#=/,;]+/|(?:v|e(?:mbed)?)/|[\w\-?&!#=,;]*[?&]v=)|youtu\.be/)([\w-]{11})(?:[^\w-]|\Z)%i', $url, $match)) {
                 $codes[] = $match[1];
@@ -36,7 +41,7 @@ class VideosExtractor implements ExtractorInterface
             return [];
         }
 
-        $formatted = array_map(fn($item) => sprintf('https://youtu.be/%s', $item), $codes);
+        $formatted = array_map(fn($v) => sprintf(self::YOUTUBE_TEMPLATE, $v), $codes);
 
         return [$this->label => $formatted];
     }

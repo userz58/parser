@@ -1,33 +1,41 @@
 <?php
 
-namespace App\DataExtractor\Tss\Product;
+namespace App\DataExtractor\KingTonyCom\Product;
 
 use App\AsAttribute\AsExtractor;
 use App\DataExtractor\ExtractorInterface;
+use App\Formatter\StringFormatter;
+use App\Parser\KingTonyComParser;
 use App\Parser\PageTypes;
-use App\Parser\TssParser;
 use App\Parser\ValueTypes;
 use Symfony\Component\DomCrawler\Crawler;
 
 #[AsExtractor(
-    supportedParsers: [TssParser::CODE],
+    supportedParsers: [KingTonyComParser::CODE],
     supportedPageTypes: [PageTypes::PRODUCT],
     valueType: ValueTypes::STRING,
 )]
-class SkuExtractor implements ExtractorInterface
+class SummaryExtractor implements ExtractorInterface
 {
-    protected string $label = 'Артикул';
+    protected string $label = 'Анонс';
 
-    protected string $selector = '#product_reference [itemprop="sku"]';
+    protected string $selector = '.p_d_box > h4';
+
+    public function __construct(
+        private StringFormatter $formatter,
+    )
+    {
+    }
 
     public function extract(Crawler $crawler): array
     {
-        // todo: оставить проверку в каждом классе или перенести в try ???
         if (0 == $crawler->filter($this->selector)->count()) {
             throw new \RuntimeException(sprintf('Не найден элемент для селектора - %s [%s]', $this->label, $this->selector));
         }
 
-        $value = $crawler->filter($this->selector)->attr('content');
+        $value = $crawler->filter($this->selector)->text();
+
+        $value = $this->formatter->format($value);
 
         return [$this->label => $value];
     }

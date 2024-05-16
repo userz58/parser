@@ -32,7 +32,6 @@ class ProductRepository extends ServiceEntityRepository
     public function iterateAll(): iterable
     {
         return $this->createQueryBuilder('p')->getQuery()->toIterable();
-        //return $this->createQueryBuilder('p')->getQuery()->toIterable([], Query::HYDRATE_SIMPLEOBJECT);
     }
 
 //    /**

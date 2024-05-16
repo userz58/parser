@@ -58,7 +58,6 @@ class KingTonyProcessCategoryProductsEventListener
         $products = isset($data['_products']) ? $data['_products'] : [];
         foreach ($products as $productSku) {
             if (null === $product = $this->productRepository->findOneBySku($productSku)) {
-                // todo: установить свойства для товара
                 $product = new Product($productSku);
             }
 

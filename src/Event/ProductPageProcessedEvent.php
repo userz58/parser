@@ -8,7 +8,8 @@ use Symfony\Contracts\EventDispatcher\Event;
 class ProductPageProcessedEvent extends Event
 {
     public function __construct(
-        private Data $data,
+        private Data   $data,
+        private string $parserCode,
     )
     {
     }
@@ -16,5 +17,10 @@ class ProductPageProcessedEvent extends Event
     public function getData(): Data
     {
         return $this->data;
+    }
+
+    public function getParserCode(): string
+    {
+        return $this->parserCode;
     }
 }

@@ -18,6 +18,9 @@ class Category
     #[ORM\Column(length: 255, unique: true)]
     private ?string $hash = null;
 
+    #[ORM\Column(length: 255, unique: true)]
+    private ?string $slug = null;
+
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
@@ -48,6 +51,18 @@ class Category
     public function setHash(string $hash): static
     {
         $this->hash = $hash;
+
+        return $this;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(?string $slug): static
+    {
+        $this->slug = $slug;
 
         return $this;
     }

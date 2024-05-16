@@ -8,7 +8,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 class CategoryPageProcessedEvent extends Event
 {
     public function __construct(
-        private Data $data,
+        private Data   $data,
         private string $parserCode,
     )
     {

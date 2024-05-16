@@ -12,12 +12,8 @@ class WriteCategoriesEventListener
 {
     const KEY_BREADCRUMBS = '_breadcrumbs';
 
-    //const KEY_CATEGORIES_HASH = '_category_hash';
-
-    //const KEY_CATEGORIES_NAME = '_category_name';
-
-    const PAGE_NAME_CATEGORIES_HASH = 'Категории (hash)';
-    const PAGE_NAME_CATEGORIES = 'Категории (для переименования)';
+    const PAGE_NAME_CATEGORIES_HASH = 'Категории (hash) - из товаров';
+    const PAGE_NAME_CATEGORIES = 'Категории (для переименования) - из товаров';
 
     public function __construct(
         private SluggerInterface $slugger,

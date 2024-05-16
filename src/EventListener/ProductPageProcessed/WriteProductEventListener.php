@@ -12,9 +12,9 @@ class WriteProductEventListener
 {
     const KEY_VARIANTS = '_variants';
 
-    const PAGE_NAME_PRODUCTS = 'Товары';
+    const PAGE_NAME_PRODUCTS = 'Товары (кратко)';
 
-    const PAGE_NAME_VARIANTS = 'Торг предложения';
+    const PAGE_NAME_VARIANTS = 'Товары - Торг предложения (кратко)';
 
     public function __construct(
         private SluggerInterface $slugger,

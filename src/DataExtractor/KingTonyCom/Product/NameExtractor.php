@@ -19,7 +19,7 @@ class NameExtractor implements ExtractorInterface
 {
     protected string $label = 'Наименование';
 
-    protected string $selector = '.p_d_box > h4';
+    protected string $selector = '.p_d_box > h3';
 
     public function __construct(
         private StringFormatter $formatter,

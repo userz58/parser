@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Event\ParserFinishedEvent;
 use App\Parser\KingTonyComParser;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -10,6 +11,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 #[AsCommand(
     name: 'parser:kingtony',
@@ -18,7 +20,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class ParserKingTonyCommand extends Command
 {
     public function __construct(
-        private KingTonyComParser $parser,
+        private KingTonyComParser        $parser,
+        private EventDispatcherInterface $eventDispatcher,
     )
     {
         parent::__construct();
@@ -34,6 +37,7 @@ class ParserKingTonyCommand extends Command
         $io->info('START ' . $timeStart->format('d-m-Y, H:i:s'));
 
         $this->parser->parse();
+        $this->eventDispatcher->dispatch(new ParserFinishedEvent($this->parser->getCode()));
 
         $writer = $this->parser->getWriter();
         $io->writeln(sprintf('Запись результатов XLS-файл - %s%s', $writer->getFilepath(), $writer->getFilename()));

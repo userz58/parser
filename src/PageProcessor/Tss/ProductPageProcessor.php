@@ -35,10 +35,10 @@ class ProductPageProcessor extends AbstractProcessor implements ProcessorInterfa
 
     protected function postProcessed(Data $data): void
     {
-        $this->eventDispatcher->dispatch(new ProductPageBeforeProcessedEvent($data));
+        $this->eventDispatcher->dispatch(new ProductPageBeforeProcessedEvent($data, $this->getParser()->getCode()));
 
-        $this->eventDispatcher->dispatch(new ProductPageProcessedEvent($data));
+        $this->eventDispatcher->dispatch(new ProductPageProcessedEvent($data, $this->getParser()->getCode()));
 
-        $this->eventDispatcher->dispatch(new ProductPagePostProcessedEvent($data));
+        $this->eventDispatcher->dispatch(new ProductPagePostProcessedEvent($data, $this->getParser()->getCode()));
     }
 }

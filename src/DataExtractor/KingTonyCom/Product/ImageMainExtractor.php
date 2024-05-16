@@ -21,7 +21,7 @@ class ImageMainExtractor implements ExtractorInterface
 {
     protected string $label = 'Изображение';
 
-    protected string $selector = '.swiper:first-child > .swiper-wrapper > .swiper-slide > a[data-fancybox] > img[data-src]';
+    protected string $selector = '.swiper:first-child > .swiper-wrapper > .swiper-slide > a[data-fancybox]:not([href^="https://youtu.be/"]) > img[data-src]';
 
     public function __construct(
         private MessageBusInterface $bus,

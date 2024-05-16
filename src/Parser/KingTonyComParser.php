@@ -40,13 +40,6 @@ class KingTonyComParser implements ParserInterface
     private array $startUrls = [
         //'https://www.kingtony.com/product.php',
         'https://www.kingtony.com/sitemap.xml',
-
-        //'https://www.kingtony.com/catalogs/Promotional-Merchandise/',
-        //'https://www.kingtony.com/product/Long-Head-Double-End-Power-Bit-1317', // много вариантов и общая фотка
-        //'https://www.kingtony.com/product/12-Point-Inch-Standard-Socket-6330S', // recommended
-        //'https://www.kingtony.com/productlist/Open-End-Wrench-Set/Open-End-Wrench-1900', // variants
-        //'https://www.kingtony.com/productlist/Tool-Trolley-Set-Tray-Foam/173-PC-Tool-Trolley-Set-932-000MR-B', // parts
-        //'https://www.kingtony.com/productlist/KINGTONY-Rock/51-PC-6-Point-Socket-Wrench-Set-2551MR', // video
     ];
 
     private array $processors = [];

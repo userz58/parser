@@ -15,11 +15,11 @@ use Symfony\Component\DomCrawler\Crawler;
     supportedPageTypes: [PageTypes::PRODUCT],
     valueType: ValueTypes::STRING,
 )]
-class MpnExtractor implements ExtractorInterface
+class DescriptionExtractor implements ExtractorInterface
 {
-    protected string $label = 'Артикул производителя';
+    protected string $label = 'Описание';
 
-    protected string $selector = '.p_d_box > h3';
+    protected string $selector = '.p_d_box > ul li';
 
     public function __construct(
         private StringFormatter $formatter,
@@ -29,14 +29,16 @@ class MpnExtractor implements ExtractorInterface
 
     public function extract(Crawler $crawler): array
     {
-        if (0 == $crawler->filter($this->selector)->count()) {
-            throw new \RuntimeException(sprintf('Не найден элемент для селектора - %s [%s]', $this->label, $this->selector));
+        $list = $crawler->filter($this->selector)->each(fn(Crawler $node) => $node->text());
+
+        $values = array_filter($list, fn($l) => !empty($l));
+
+        $formatted = "<ul>";
+        foreach ($values as $value) {
+            $formatted .= sprintf("<li>%s</li>\n", $value);
         }
+        $formatted .= "</ul>";
 
-        $value = $crawler->filter($this->selector)->text();
-
-        $value = $this->formatter->format($value);
-
-        return [$this->label => $value];
+        return [$this->label => $formatted];
     }
 }
