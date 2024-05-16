@@ -12,20 +12,17 @@ class DownloaderFiles
 {
     private string $userAgent = 'Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)';
 
-    private ?Filesystem $filesystem = null;
-
-    private ?PathGenerator $pathGenerator = null;
-
-    public function __construct(Filesystem $localUploadsFilesystem, PathGenerator $pathGenerator)
+    public function __construct(
+        private Filesystem    $filesystem,
+        private PathGenerator $pathGenerator
+    )
     {
-        $this->filesystem = $localUploadsFilesystem;
-        $this->pathGenerator = $pathGenerator;
     }
 
     // скачать и сохранить файл
     public function download(string $url, ?string $ext = null): string
     {
-        if(null === $ext) {
+        if (null === $ext) {
             $ext = pathinfo($url, PATHINFO_EXTENSION);
         }
 
@@ -42,7 +39,7 @@ class DownloaderFiles
 
     public function downloadInto(string $url, string $subDir, ?string $ext = null): string
     {
-        if(null === $ext) {
+        if (null === $ext) {
             $ext = pathinfo($url, PATHINFO_EXTENSION);
         }
 

@@ -5,7 +5,6 @@ oneup_flysystem:
             local:
                 #location: '%kernel.cache_dir%/flysystem'
                 location: '%kernel.project_dir%/flysystem'
-                #location: '%kernel.cache_dir%/var/flysystem'
     filesystems:
         default_filesystem:
             adapter: default_adapter

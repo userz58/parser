@@ -15,9 +15,9 @@ use Symfony\Component\DomCrawler\Crawler;
     supportedPageTypes: [PageTypes::PRODUCT],
     valueType: ValueTypes::STRING,
 )]
-class MpnExtractor implements ExtractorInterface
+class SkuExtractor implements ExtractorInterface
 {
-    protected string $label = 'Артикул производителя';
+    protected string $label = 'Артикул';
 
     protected string $selector = '.p_d_box > h3';
 

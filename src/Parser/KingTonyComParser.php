@@ -25,7 +25,7 @@ class KingTonyComParser implements ParserInterface
     private array $skipUrls = [
         'https://www.kingtony.com/',
         'https://www.kingtony.com/index.php',
-        'https://www.kingtony.com/product.php',
+        'product_new.php',
         'https://www.kingtony.com/contact.php',
         'https://www.kingtony.com/support.php',
         'https://www.kingtony.com/profile.php',
@@ -38,7 +38,10 @@ class KingTonyComParser implements ParserInterface
     ];
 
     private array $startUrls = [
+        //'https://www.kingtony.com/product.php',
         'https://www.kingtony.com/sitemap.xml',
+
+        //'https://www.kingtony.com/catalogs/Promotional-Merchandise/',
         //'https://www.kingtony.com/product/Long-Head-Double-End-Power-Bit-1317', // много вариантов и общая фотка
         //'https://www.kingtony.com/product/12-Point-Inch-Standard-Socket-6330S', // recommended
         //'https://www.kingtony.com/productlist/Open-End-Wrench-Set/Open-End-Wrench-1900', // variants
@@ -49,7 +52,7 @@ class KingTonyComParser implements ParserInterface
     private array $processors = [];
 
     public function __construct(
-        private DownloaderHtml       $downloader,
+        private DownloaderHtml             $downloader,
         private Pool                       $pool,
         private PageProcessorManager       $processorManager,
         private ExtractedDataRepository    $extractedDataRepository,

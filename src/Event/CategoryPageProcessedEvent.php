@@ -9,6 +9,7 @@ class CategoryPageProcessedEvent extends Event
 {
     public function __construct(
         private Data $data,
+        private string $parserCode,
     )
     {
     }
@@ -16,5 +17,10 @@ class CategoryPageProcessedEvent extends Event
     public function getData(): Data
     {
         return $this->data;
+    }
+
+    public function getParserCode(): string
+    {
+        return $this->parserCode;
     }
 }

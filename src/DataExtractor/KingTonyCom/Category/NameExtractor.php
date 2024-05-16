@@ -1,6 +1,6 @@
 <?php
 
-namespace App\DataExtractor\KingTonyCom\Product;
+namespace App\DataExtractor\KingTonyCom\Category;
 
 use App\AsAttribute\AsExtractor;
 use App\DataExtractor\ExtractorInterface;
@@ -12,14 +12,14 @@ use Symfony\Component\DomCrawler\Crawler;
 
 #[AsExtractor(
     supportedParsers: [KingTonyComParser::CODE],
-    supportedPageTypes: [PageTypes::PRODUCT],
+    supportedPageTypes: [PageTypes::CATEGORY],
     valueType: ValueTypes::STRING,
 )]
-class MpnExtractor implements ExtractorInterface
+class NameExtractor implements ExtractorInterface
 {
-    protected string $label = 'Артикул производителя';
+    protected string $label = 'Название';
 
-    protected string $selector = '.p_d_box > h3';
+    protected string $selector = '.bread_box li';
 
     public function __construct(
         private StringFormatter $formatter,
@@ -33,10 +33,10 @@ class MpnExtractor implements ExtractorInterface
             throw new \RuntimeException(sprintf('Не найден элемент для селектора - %s [%s]', $this->label, $this->selector));
         }
 
-        $value = $crawler->filter($this->selector)->text();
+        $values = $crawler->filter($this->selector)->each(fn(Crawler $node) => $node->text());
+        $values = array_filter($values, fn($item) => !empty($item));
+        $name = $this->formatter->format(end($values));
 
-        $value = $this->formatter->format($value);
-
-        return [$this->label => $value];
+        return [$this->label => $name];
     }
 }

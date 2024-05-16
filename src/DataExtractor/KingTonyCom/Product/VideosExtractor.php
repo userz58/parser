@@ -16,7 +16,7 @@ use Symfony\Component\DomCrawler\Crawler;
 )]
 class VideosExtractor implements ExtractorInterface
 {
-    protected string $label = 'Видео (код из Youtube)';
+    protected string $label = 'Видео (только ссылка)';
 
     protected string $selector = '#video-tab-pane iframe';
 

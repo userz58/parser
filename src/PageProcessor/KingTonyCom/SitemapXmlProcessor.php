@@ -34,6 +34,6 @@ class SitemapXmlProcessor extends AbstractProcessor implements ProcessorInterfac
 
     protected function postProcessed(Data $data): void
     {
-        $this->eventDispatcher->dispatch(new SitemapXmlProcessedEvent($data));
+        $this->eventDispatcher->dispatch(new SitemapXmlProcessedEvent($data, $this->getParser()->getCode()));
     }
 }

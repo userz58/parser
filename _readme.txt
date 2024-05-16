@@ -198,3 +198,7 @@ docker system prune -a -f --volumes
 git remote add origin https://github.com/userz58/parser.git
 git branch -M main
 git push -u origin main
+
+git reset --hard HEAD
+git pull
+

@@ -16,9 +16,10 @@ use Symfony\Component\DomCrawler\Crawler;
 )]
 class VideoExtractor implements ExtractorInterface
 {
-    protected string $label = 'Видео (удалить)';
+    private const YOUTUBE_TEMPLATE = '<iframe width="560" height="315" src="%s" title="Видео - инструмент KingTony" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
 
-    //protected string $selector = '.swiper .swiper-slide > a[href="*youtu*"]';
+    protected string $label = 'Видео (код из youtube)';
+
     protected string $selector = '.swiper .swiper-slide > a';
 
     public function extract(Crawler $crawler): array
@@ -48,6 +49,8 @@ class VideoExtractor implements ExtractorInterface
         //        $codes[] = $match[1];
         //    }
         //}
+
+        $formatted = array_map(fn($v) => sprintf(self::YOUTUBE_TEMPLATE, $v), $values);
 
         return $values;
     }
