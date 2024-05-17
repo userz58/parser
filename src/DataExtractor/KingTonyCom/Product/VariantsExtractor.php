@@ -171,6 +171,7 @@ class VariantsExtractor implements ExtractorInterface
     {
         if (str_contains($label, 'https://www.kingtony.com/upload/products_title_img/')) {
             $label = str_replace(['https://www.kingtony.com/upload/products_title_img/', '.svg',], '', $label);
+            $label = sprintf('PROP_%s', $label);
         }
 
         if (array_key_exists($label, $this->renameParams)) {

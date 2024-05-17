@@ -38,7 +38,7 @@ class KingTonyComParser implements ParserInterface
     ];
 
     private array $startUrls = [
-        //'https://www.kingtony.com/product.php',
+        'https://www.kingtony.com/product.php',
         'https://www.kingtony.com/sitemap.xml',
     ];
 

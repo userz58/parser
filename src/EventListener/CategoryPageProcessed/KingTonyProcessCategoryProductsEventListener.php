@@ -16,6 +16,8 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 #[AsEventListener]
 class KingTonyProcessCategoryProductsEventListener
 {
+    private const PAGE_NAME = 'Карегории (KingTony)';
+
     public function __construct(
         private CategoryRepository $categoryRepository,
         private ProductRepository  $productRepository,
@@ -33,14 +35,13 @@ class KingTonyProcessCategoryProductsEventListener
         }
 
         $data = $event->getData()->toArray();
-        //dump($data);
 
-        $categoryName = $data['Название'];
         $categorySlug = $data['_slug'];
+        $categoryHash = sha1($categorySlug);
+        //$categoryName = $data['Название'];
+        $categoryName = sprintf('%s %s', substr($categoryHash, -2), $data['Название']);
 
         if (null === $category = $this->categoryRepository->findOneBySlug($categorySlug)) {
-            $categoryHash = sha1($categorySlug);
-
             $category = (new Category())
                 ->setSlug($categorySlug)
                 ->setHash($categoryHash)
@@ -85,7 +86,6 @@ class KingTonyProcessCategoryProductsEventListener
             $slug = $this->slugger->slug($name)->lower()->toString();
             //$slug = sprintf('%s-%s', substr($hash, 0, 4), $this->slugger->slug($name)->lower()->toString());
 
-            //$rowOnHashPage[] = $hash;
             $rowOnHashPage[] = sprintf('%s %s', substr($hash, 0, 2), $name);
             $rowOnHashPage[] = $slug;
 
@@ -96,7 +96,7 @@ class KingTonyProcessCategoryProductsEventListener
         }
 
         // запись вложенных категорий по уникальным занчениям HASH
-        $this->writer->add('Категории1', $rowOnHashPage);
+        $this->writer->add(self::PAGE_NAME, $rowOnHashPage);
 
         // запись вложенных категорий
         //$this->writer->add('Категории2', $rowOnRenamePage);

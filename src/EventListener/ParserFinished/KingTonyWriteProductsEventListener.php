@@ -15,8 +15,9 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 #[AsEventListener]
 class KingTonyWriteProductsEventListener
 {
-    private const PAGE_NAME_PRODUCTS = 'Товары1';
-    private const PAGE_NAME_VARIANTS = 'Торговые предложения1';
+    private const PAGE_NAME_PRODUCTS = 'Товары (с характеристиками)';
+    private const PAGE_NAME_VARIANTS = 'Торговые предложения';
+    private const PAGE_NAME_PRODUCTS_IN_CAT = 'Товары в категориях';
     private const KEY_CATEGORY_HASH = '_category_hash';
     private const KEY_CATEGORY_NAME = '_category_name';
     private const KEY_URL = 'url';
@@ -44,10 +45,11 @@ class KingTonyWriteProductsEventListener
             return;
         }
 
+        $this->writer->add('Товары в категориях', ['Категории', 'Название товара', 'Артикул']);
+
         $productsAttributes = $this->attributesManager->getProductAttributes();
         $exclude = [self::KEY_URL, self::KEY_BREADCRUMBS, self::KEY_VARIANTS, self::KEY_CATEGORY_HASH, self::KEY_CATEGORY_NAME];
         $productsAttributes = array_filter($productsAttributes, fn($attr) => !in_array($attr, $exclude));
-        $productsAttributes = array_merge([self::KEY_CATEGORY_HASH, self::KEY_CATEGORY_NAME], $productsAttributes);
         $this->writer->add(self::PAGE_NAME_PRODUCTS, $productsAttributes);
 
         $variantsAttrtibutes = ['Название товара', 'Артикул', 'Название', 'Сортировка'] + $this->attributesManager->getVariantAttributes();
@@ -57,19 +59,20 @@ class KingTonyWriteProductsEventListener
         $iterator = $this->productRepository->iterateAll();
         $i = 0;
         foreach ($iterator as $product) {
+            $productSku = $product->getSku();
+
             $i++;
-            print_r(sprintf("Запись в файл [%d] %s\n", $i, $product->getSku()));
+            print_r(sprintf("Запись в файл [%d] %s\n", $i, $productSku));
+
+            $categoriesNames = [];
+            foreach ($product->getCategories() as $category) {
+                $categoriesNames[] = $category->getName();
+            }
+            $this->writer->add('Товары в категориях', ['Категории' => implode(';', $categoriesNames), 'Название товара' => $productSku, 'Артикул' => $productSku,]);
 
             // записать товар
-            $productSku = $product->getSku();
             $data = $product->getProps();
             $rowProduct = [];
-
-            $categoriesHash = array_map(fn($c) => sprintf('%s %s', substr($c->getHash(), 0, 2), $c->getName()), $product->getCategories()->toArray());
-            $rowProduct[self::KEY_CATEGORY_HASH] = implode(';', $categoriesHash);
-
-            $categoriesName = array_map(fn($c) => $c->getName(), $product->getCategories()->toArray());
-            $rowProduct[self::KEY_CATEGORY_NAME] = implode(';', $categoriesName);
 
             foreach ($productsAttributes as $attr) {
                 if (array_key_exists($attr, $data)) {
@@ -82,7 +85,6 @@ class KingTonyWriteProductsEventListener
             //dump('записать в эксель данные товара', $rowProduct);
             $this->writer->add(self::PAGE_NAME_PRODUCTS, $rowProduct);
 
-
             // записать варианты
             if (array_key_exists(self::KEY_VARIANTS, $data)) {
                 $variants = $data[self::KEY_VARIANTS];
@@ -92,7 +94,6 @@ class KingTonyWriteProductsEventListener
                     $values['Артикул'] = $varSku;
                     $values['Название'] = $varSku;
                     $values['Сортировка'] = $sortIndex++;
-
 
                     // пройти по всем аттрибутам
                     $rowVariant = [];
@@ -109,36 +110,6 @@ class KingTonyWriteProductsEventListener
             }
 
             $this->saver->detach($product);
-
-
-            // todo: --> DELETE
-            /*
-
-            $this->writer->add('Товары в категориях', [
-                'Категории',
-                'Название товара',
-                'Артикул',
-            ]);
-
-            $row = [];
-
-            $categoriesHash = array_map(fn($c) => sprintf('%s %s', substr($c->getHash(), 0, 2), $c->getName()), $product->getCategories()->toArray());
-            $row[self::KEY_CATEGORY_HASH] = implode(';', $categoriesHash);
-            $row[self::KEY_CATEGORY_NAME] = implode(';', array_map(fn($c) => $c->getName(), $product->getCategories()->toArray()));
-
-
-            //$categoriesHash = array_map(fn($c) => $c->getHash(), $product->getCategories()->toArray());
-            //$row['Категории (HASH)'] = implode(';', $categoriesHash);
-            //$categoriesNames = array_map(fn($c) => $c->getName(), $product->getCategories()->toArray());
-            //$row['Категории (Названия)'] = implode(';', $categoriesNames);
-
-            //$row['Название товара'] = $product->getSku();
-            //$row['Артикул'] = $product->getSku();
-
-            // todo: записать свойства товара
-            //$this->writer->add('Товары в категориях', $row);
-            */
-            // todo: <-- DELETE
         }
     }
 }
